@@ -1,12 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blog de Viajes</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Blog Viajes</title>
+  <link rel="stylesheet" href="stylesheets/style.css">
+  <link rel="stylesheet" href="stylesheets/mini-dark.min.css">
 </head>
+
 <body>
-    <h1><b>Bienvenidos al Blog de Viajes !!</b></h1>
-    
+  <%- include('./partials/header') -%>
+
+  <div class="container">
+    <img src="images/bora-bora.jpg" width="100%">
+    <h1>Inicio</h1>
+    <p>Aquí nuestras últimas publicaciones:</p>
+
+    <div class="row">
+
+      <% publicaciones.forEach(publicacion => { %>
+      <div class="col-sm-12">
+        <div class="card fluid ">
+          <h3 class="section">
+            <a href="#">
+              <%=publicacion.titulo%>
+            </a>
+            <mark class="tag">
+              <%=publicacion.votos%>
+            </mark>
+          </h3>
+          <h6 class="section dark">
+            <span class="icon-user"></span>
+            <%=publicacion.pseudonimo%> -
+            <span class="icon-calendar"></span>
+            <%= new Date(publicacion.fecha_hora).getDay() %>/<%= new Date(publicacion.fecha_hora).getMonth() %>/<%= new Date(publicacion.fecha_hora).getFullYear() %>
+            
+          </h6>
+          <p>
+            <%= publicacion.resumen %>
+          </p>
+        </div>
+      </div>
+      <% }) %>
+
+    </div>
+
+  </div>
+
+  <%- include('./partials/footer') -%>
+  <script src="javascripts/script.js"></script>
 </body>
+
 </html>

@@ -1,0 +1,22 @@
+.header {
+    background-color: tomato;
+}
+
+.header-left {
+    display: flex;
+    flex-flow: row;
+    justify-content: space-around;
+    align-self: center;
+}
+
+.header-right {
+    display: flex;
+    flex-flow: row;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.img_header { 
+    width: 100%;
+    height: 250px;
+}
