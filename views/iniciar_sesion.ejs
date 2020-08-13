@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Blog Viajes</title>
+  <link rel="stylesheet" href="stylesheets/style.css">
+  <link rel="stylesheet" href="stylesheets/mini-dark.min.css">
+</head>
+
+<body>
+  <%- include('./partials/header_public') -%>
+
+  <div class="container">
+    <h1>Iniciar Sesión</h1>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <% if (mensaje && mensaje.length > 0) { %>
+                <h4><span class="icon-info"></span>
+                    <%=mensaje%></h4>
+            <% } %>
+
+            <form action="/procesar_sesion" method="post">
+                <fieldset>
+                    <legend>Nuevo Usuario</legend>
+                    <p>
+                        <label for="email">Email</label>
+                        <br>
+                        <input type="email" name="email" id="email" required="true">
+                    </p>
+                    <p>
+                        <label for="contrasena">Contraseña</label>
+                        <br>
+                        <input type="password" name="contrasena" id="contrasena" required="true">
+                    </p>
+                    <p>
+                        <input class="primary" type="submit" value="Iniciar Sesión">
+                    </p>
+                </fieldset>
+            </form>
+        </div>
+    </div>
+
+  </div>
+
+  <%- include('./partials/footer') -%>
+  <script src="javascripts/script.js"></script>
+</body>
+
+</html>

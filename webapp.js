@@ -97,6 +97,40 @@ aplicacion.post('/procesar_registro', function (peticion, respuesta) {
   })
 })
 
+aplicacion.get('/iniciar_sesion', function(req, res) {
+  console.log(req.session.usuario);
+  console.log('USUARIO SESSION');
+  res.render('iniciar_sesion', { mensaje: req.flash('mensaje')})
+})
+
+aplicacion.post('/procesar_sesion', function(req, res) {
+  pool.getConnection(function (err, connection) {
+
+    const consultaUsuario = `SELECT * FROM autores WHERE email = ${connection.escape(req.body.email)} AND contrasena = ${connection.escape(req.body.contrasena)}`
+
+  
+    connection.query(consultaUsuario, function(error, filas, campos) {
+      if (filas.length > 0 ) {
+        req.session.usuario = filas[0]
+        res.redirect('/admin/index')
+      } else {
+        req.flash('mensaje', 'Datos Inválidos!')
+        res.redirect('/iniciar_sesion')        
+      }
+    })
+    connection.release()
+  })
+})
+
+aplicacion.get('/admin/index', function(req, res) {
+  res.render('admin/index', { usuario: req.session.usuario, mensaje: req.flash('mensaje')})
+})
+
+aplicacion.get('/procesar_cerrar_sesion', function(req, res) {
+  req.session.destroy()
+  res.redirect('/')
+})
+
 aplicacion.listen(8080, function () {
   console.log("Servidor iniciado")
 })
