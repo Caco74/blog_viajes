@@ -1,12 +1,11 @@
 <header class="row header">
     <div class="col-md-5 header-left">
-        <h2>Blog de Viajes</h2>
-        <h3><a href="/">Inicio</a></h3>
-        <h3><a href="http://">Autores</a></h3>
+        <span class="icon-user"></span>
+        <%=usuario.pseudonimo%>
+        <a href="/admin/procesar_cerrar_sesion">Cerrar Sesión</a>
     </div>
     <div class="col-md-7 header-right">
-        <span><a href=""><%=usuario.pseudonimo %> </a></span>
-        <span>|</span>
-        <span><a href="/procesar_cerrar_sesion">Cerrar Sesión</a></span>
+        <a href="#" class="logo">Blog de Viajes</a>
+        <a href="/admin/index" class="button"><span class="icon-credit"></span>Admin</a>
     </div>
 </header>
