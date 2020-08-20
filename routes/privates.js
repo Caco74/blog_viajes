@@ -56,27 +56,67 @@ router.get('/index', function(req, res) {
     })
   })
   
-  router.put('/edit/:id', (req, res) => {
+  router.get('/edit/:id', (req, res) => {
     pool.getConnection((err, connection) => {
-      const query = `SELECT * FROM publicaciones WHERE id=${connection.escape(req.params.id)}`
-      connection.query(query, (error, filas, campos) => {
-        if (filas.length > 0) {
-          const queryUpdate = `UPDATE publicaciones SET 
-            titulo=${connection.escape(req.body.titulo)}, 
-            resumen=${connection.escape(req.body.resumen)}, 
-            contenido${connection.escape(req.body.contenido)}
-          `
-          connection.query(queryUpdate, (error, filas, campos) => {
-            const queryConsulta = `SELECT * FROM publicaciones WHERE id=${connection.escape(req.params.id)}`
-            connection.query(queryConsulta, (error, filas, campos) => {
-              res.json({ data: filas[0]})
-            })
-          })
+      const consulta = `SELECT * FROM publicaciones
+      WHERE 
+      id = ${connection.escape(req.params.id)} 
+      AND 
+      autor_id = ${connection.escape(req.session.usuario.id)}`
+
+      connection.query(consulta, (error, filas, campos) => {
+        if(filas.length > 0) {
+          res.render('admin/edit', {publicacion: filas[0], mensaje: req.flash('mensaje'), usuario: req.session.usuario})
         } else {
-          res.status(400)
-          res.send({ errors: ['No se encuentra esa publicación.']})
+          req.flash('mensaje', 'Operación no permitida.')
+          res.redirect('/admin/index')
         }
       })
+      connection.release()
+    })
+  })
+
+  router.post('/procesar_editar', (req, res) => {
+    pool.getConnection((err, connection) => {
+      const consulta = `UPDATE publicaciones 
+      SET 
+      titulo = ${connection.escape(req.body.titulo)},
+      resumen = ${connection.escape(req.body.resumen)},
+      contenido = ${connection.escape(req.body.contenido)} 
+      WHERE 
+      id = ${connection.escape(req.body.id)} 
+      AND 
+      autor_id = ${connection.escape(req.session.usuario.id)}`
+
+      connection.query(consulta, (error, filas, campos) => {
+        if (filas && filas.changedRows > 0) {
+          req.flash('mensaje', 'Publicación editada.')
+        } else {
+          req.flash('mensaje', 'Publicación no editada')
+        }
+        res.redirect('/admin/index')
+      })
+      connection.release()
+    })
+  })
+
+  router.get('/procesar_eliminar/:id', (req, res) => {
+    pool.getConnection((err, connection) => {
+      const consulta = `DELETE FROM publicaciones 
+      WHERE 
+      id = ${connection.escape(req.params.id)} 
+      AND 
+      autor_id = ${connection.escape(req.session.usuario.id)}`
+
+      connection.query(consulta, (error, filas, campos) => {
+        if (filas && filas.affectedRows > 0) {
+         req.flash('mensaje', 'Publicación eliminada.') 
+        } else {
+          req.flash('mensaje', 'Publicación no eliminada.')
+        }
+        res.redirect('/admin/index')
+      })
+      connection.release()
     })
   })
 

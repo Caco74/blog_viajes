@@ -37,8 +37,8 @@
                             <td><%=publicacion.resumen %> </td>
                             <td><%=publicacion.votos %> </td>
                             <td>
-                                <a href="/admin/editar/<%=publicacion.id%>"><span class="icon-edit"></span>Editar</a>
-                                <a href="/admin/editar/<%=publicacion.id%>" onclick="return confirm('¿Está seguro de eliminar: <%=publicacion.titulo%>?')"><span class="icon-alert"></span>Eliminar</a>
+                                <a href="/admin/edit/<%=publicacion.id%>"><span class="icon-edit"></span>Editar</a>
+                                <a href="/admin/procesar_eliminar/<%=publicacion.id%>" onclick="return confirm('¿Está seguro de eliminar: <%=publicacion.titulo%>?')"><span class="icon-alert"></span>Eliminar</a>
                             </td>
                         </tr>
                         <% }) %> 
