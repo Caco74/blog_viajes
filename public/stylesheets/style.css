@@ -20,3 +20,12 @@
     width: 100%;
     height: 250px;
 }
+
+form.buscador {
+    padding: 0;
+    text-align: center;
+}
+
+.centrado {
+    text-align: center;
+}

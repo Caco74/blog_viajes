@@ -11,26 +11,48 @@ const pool = mysql.createPool({
     database: 'blog_viajes'
 })
 
-router.get('/', function (peticion, respuesta) {
+router.get('/', function (req, res) {
     pool.getConnection(function (err, connection) {
-      const consulta = `
-        SELECT
-        titulo, resumen, fecha_hora, pseudonimo, votos
-        FROM publicaciones
-        INNER JOIN autores
-        ON publicaciones.autor_id = autores.id
-        ORDER BY fecha_hora DESC
-        LIMIT 5
+      let consulta
+      let modificadorConsulta = ''
+      let modificadorPagina = ''
+      let pagina = 0
+      const busqueda = ( req.query.busqueda) ? req.query.busqueda : ''
+      if (busqueda != '') {
+        modificadorConsulta = `
+          WHERE 
+          titulo LIKE '%${busqueda}%' OR 
+          resumen LIKE '%${busqueda}%' OR
+          contenido LIKE '%${busqueda}%'
+        `
+        modificadorPagina = ''
+      } else {
+        pagina = (req.query.pagina) ? parseInt(req.query.pagina) : 0
+        if (pagina < 0) {
+          pagina = 0
+        }
+        modificadorPagina = `
+          LIMIT 5 OFFSET ${pagina*5}
+        `
+      }
+      consulta = `
+        SELECT 
+        titulo, resumen, fecha_hora, pseudonimo, votos 
+        FROM publicaciones 
+        INNER JOIN autores 
+        ON publicaciones.autor_id = autores.id ${modificadorConsulta} 
+        ORDER BY fecha_hora DESC 
+        ${modificadorPagina}
       `
       connection.query(consulta, function (error, filas, campos) {
-        respuesta.render('index', { publicaciones: filas })
+        res.render('index', { publicaciones: filas, busqueda: busqueda, pagina: pagina })
       })
       connection.release()
     })
   })
   
-  router.get('/registro', function (peticion, respuesta) {
-    respuesta.render('registro', { mensaje: peticion.flash('mensaje') })
+  router.get('/registro', function (req, res) {
+    res.render('registro', { mensaje: req.flash('mensaje') })
   })
   
   router.post('/procesar_registro', function (peticion, respuesta) {
