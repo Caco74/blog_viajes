@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Blog Viajes</title>
+  <link rel="stylesheet" href="../stylesheets/style.css">
+  <link rel="stylesheet" href="../stylesheets/mini-dark.min.css">
+</head>
+
+<body>
+  <%- include('./partials/header_public') -%>
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="card fluid">
+
+          <h1>
+            <%=publicacion.titulo%>
+            <mark class="tag"><%=publicacion.votos%></mark>
+          </h1>
+          <a href="/publicacion/<%=publicacion.id%>/votar" class="button small primary">+ 1</a>
+        </div>
+        <div>
+          <%=publicacion.contenido%> 
+        </div>
+      </div>
+    </div>
+  </div>
+  <%- include('./partials/footer') -%>
+</body>
+
+</html>

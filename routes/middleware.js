@@ -15,7 +15,17 @@ router.use('/admin/', (req, res, next) => {
         req.flash('mensaje', 'Debe iniciar sesión')
         res.redirect('/iniciar_sesion')
     } else {
-        console.log('Se ejecuta el middleware o no!');
+        console.log('Middleware admin');
+        next()
+    }
+})
+
+router.use('/admin/publicaciones', (req, res, next) => {
+    if (!req.session.usuario) {
+        req.flash('mensaje', 'Debe iniciar sesión')
+        res.redirect('/iniciar_sesion')
+    } else {
+        console.log('Middleware publicaciones');
         next()
     }
 })

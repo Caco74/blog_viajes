@@ -20,10 +20,10 @@
 
     <div class="row">
       <div class="col-sm-12">
-        <form action="/" class="buscador">
+        <form class="buscador" action="/">
           <label for="busqueda">Buscar publicación</label>
-          <input type="text" id="busqueda" name="busqueda" value="<%=busqueda %> ">
-          <button type="submit" class="icon-search"> <span>Buscar</span> </button>
+          <input type="text" id="busqueda" name="busqueda" value="<%=busqueda%> ">
+          <button type="submit"><span class="icon-search"></span>Buscar</button>
         </form>
       </div>
     </div>
@@ -33,12 +33,16 @@
       <% publicaciones.forEach(publicacion => { %>
       <div class="col-sm-12">
         <div class="card fluid ">
-          <h3 class="section">
-            <a href="#"><%=publicacion.titulo%></a><mark class="tag">
+          <h3 class="section"><a href="/publicacion/<%=publicacion.id%>">
+            <%=publicacion.titulo%></a><mark class="tag">
             <%=publicacion.votos%></mark>
           </h3>
           <h6 class="section dark">
-            <span class="icon-user"></span>
+            <% if(publicacion.avatar && publicacion.avatar != "") {  %>
+              <img src="/avatars/<%=publicacion.avatar%>" class="avatar">
+            <% } else { %>
+              <span class="icon-user"></span>
+            <% } %> 
             <%=publicacion.pseudonimo%> -
             <span class="icon-calendar"></span>
             <%= new Date(publicacion.fecha_hora).getDay() %>/<%= new Date(publicacion.fecha_hora).getMonth() %>/<%= new Date(publicacion.fecha_hora).getFullYear() %>
@@ -65,7 +69,6 @@
   </div>
 
   <%- include('./partials/footer') -%>
-  <script src="javascripts/script.js"></script>
 </body>
 
 </html>

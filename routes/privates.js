@@ -49,8 +49,13 @@ router.get('/index', function(req, res) {
       )
       `
       connection.query(consulta, function(error, filas, campos) {
+        if (filas) {
+          console.log('Existe FILAS');
+        } else {
+          console.log('No existe FILAS');
+        }
         req.flash('mensaje', 'Publicación agregada')
-        res.redirect('/index')
+        res.redirect('/admin/index')
       })
       connection.release()
     })

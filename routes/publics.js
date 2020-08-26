@@ -1,7 +1,30 @@
 const express = require('express')
 const router = express.Router()
 const mysql = require('mysql')
+const path = require('path')
+const nodemailer = require('nodemailer')
 const { Router } = require('express')
+
+// Objeto que envía el correo
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'devfranco87@gmail.com',
+    pass: '1884franco'
+  }
+})
+
+function enviarCorreoBienvenida(email, nombre) {
+  const opciones = {
+    from: 'devfranco87@gmail.com',
+    to: email,
+    subject: 'Bienvenido al blog de viajes',
+    text: `Hola ${nombre}`
+  }
+  transporter.sendMail(opciones, (error, info) => {
+
+  })
+}
 
 const pool = mysql.createPool({
     connectionLimit: 20,
@@ -37,7 +60,7 @@ router.get('/', function (req, res) {
       }
       consulta = `
         SELECT 
-        titulo, resumen, fecha_hora, pseudonimo, votos 
+        publicaciones.id id, titulo, resumen, fecha_hora, pseudonimo, votos, avatar 
         FROM publicaciones 
         INNER JOIN autores 
         ON publicaciones.autor_id = autores.id ${modificadorConsulta} 
@@ -99,8 +122,31 @@ router.get('/', function (req, res) {
                                   )
                                 `
               connection.query(consulta, function (error, filas, campos) {
-                peticion.flash('mensaje', 'Usuario registrado')
-                respuesta.redirect('/registro')
+                // Si existe un archivo cargado, y si existe un archivo subido que se llame avatar ejecutamos la lógica de abajo
+                if (peticion.files && peticion.files.avatar) {
+                  const archivoAvatar = peticion.files.avatar
+                  const id = filas.insertId
+                  const nombreArchivo = `${id}${path.extname(archivoAvatar.name)}`
+
+                  archivoAvatar.mv(`./public/avatars/${nombreArchivo}`, (error) => {
+                    const consultaAvatar = `
+                                  UPDATE 
+                                  autores 
+                                  SET avatar = ${connection.escape(nombreArchivo)} 
+                                  WHERE id = ${connection.escape(id)}
+                                  `
+                  connection.query(consultaAvatar, (error, filas, campos) => {
+                    enviarCorreoBienvenida(email, pseudonimo)
+                    peticion.flash('mensaje', 'Usuario registrado con avatar.')
+                    respuesta.redirect('/registro')
+                  })
+                  })
+
+                } else {
+                  enviarCorreoBienvenida(email, pseudonimo)
+                  peticion.flash('mensaje', 'Usuario registrado.')
+                  respuesta.redirect('/registro')
+                }
               })
             }
           })
@@ -133,6 +179,85 @@ router.get('/', function (req, res) {
         } else {
           req.flash('mensaje', 'Datos Inválidos!')
           res.redirect('/iniciar_sesion')        
+        }
+      })
+      connection.release()
+    })
+  })
+
+  router.get('/publicacion/:id', (req, res) => {
+    pool.getConnection((err, connection) => {
+      const consulta = `SELECT * FROM publicaciones WHERE 
+        id = ${connection.escape(req.params.id)} 
+        `
+      connection.query(consulta, (error, filas, campos) => {
+        if(filas.length > 0) {
+          res.render('publicacion', {publicacion: filas[0]})
+        } else {
+          console.log(error);
+          res.redirect('/')
+        }
+      })
+      connection.release()
+    })
+  })
+
+  router.get('/autores', (req, res) => {
+    pool.getConnection((err, connection) => {
+      const consulta = ` 
+                  SELECT autores.id id, pseudonimo, avatar, publicaciones.id publicacion_id, titulo 
+                  FROM autores 
+                  INNER JOIN 
+                  publicaciones 
+                  ON 
+                  autores.id = publicaciones.autor_id 
+                  ORDER BY autores.id DESC, publicaciones.fecha_hora DESC
+                  `
+      connection.query(consulta, (error, filas, campos) => {
+        autores = []
+        ultimoAutorId = undefined
+        filas.forEach(registro => {
+          if (registro.id != ultimoAutorId) {
+            ultimoAutorId = registro.id
+            autores.push({
+              id: registro.id,
+              pseudonimo: registro.pseudonimo,
+              avatar: registro.avatar,
+              publicaciones: []
+            })
+          }
+          autores[autores.length-1].publicaciones.push({
+            id: registro.publicacion_id,
+            titulo: registro.titulo
+          })
+        });
+        res.render('autores', {autores: autores})
+      })
+      connection.release()
+    })
+  })
+
+  router.get('/publicacion/:id/votar', (req, res) => {
+    pool.getConnection((err, connection) => {
+      const consulta = `
+            SELECT *
+            FROM publicaciones
+            WHERE id = ${connection.escape(req.params.id)}
+            `
+      connection.query(consulta, (error, filas, campos) => {
+        if (filas.length > 0) {
+          const consultaVoto = `
+                UPDATE publicaciones
+                SET
+                votos = votos + 1
+                WHERE id = ${connection.escape(req.params.id)}
+                `
+                connection.query(consultaVoto, (error, filas, campos) => {
+                  res.redirect(`/publicacion/${req.params.id}`)
+                })
+        } else {
+          req.flash('mensaje', 'Publicación Inválida')
+          res.redirect('/')
         }
       })
       connection.release()
